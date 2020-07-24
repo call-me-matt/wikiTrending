@@ -25,7 +25,7 @@ logger = logging.getLogger("telegram-handler")
 class telegramHandler (threading.Thread):
 
     def register(self, update, context):
-        context.bot.send_message(chat_id=update.message.chat_id, text="Hello, " + update.message.from_user.first_name + ". I will inform you once per day about trends on wikipedia. Currently I am watching the english wikipedia. To change the language, send the language code as follows: /watch de (for German) or /watch fr (for French). All other languages known to wikipedia work as well. To stop the reports, send /stop")
+        context.bot.send_message(chat_id=update.message.chat_id, text="Hello, " + update.message.from_user.first_name + ". I will inform you once per day about trends on Wikipedia. Currently I am watching the English version. In order to change the language, send the language code as follows: '/watch xx' according to xx.wikipedia.org. For example '/watch fr' for French or '/watch de' for German. To stop the reports, send /stop")
         databaseHandler.addUser(update.message.from_user.name,update.message.chat_id)
         self.scannerThread.check()
 
@@ -48,8 +48,14 @@ class telegramHandler (threading.Thread):
 
     def watch(self, update, context):
         if (len(context.args) != 1):
-            context.bot.send_message(chat_id=update.message.chat_id, 
-            text="Which language shall I check for you? Please add the language code according to xx.wikipedia.org: '/watch xx'. For example '/watch de' for German or 'watch fr' for French version.")
+            user = databaseHandler.getUserLang(update.message.chat_id)
+            if (len(user) == 0):
+                self.register(update,context)
+            else:
+                context.bot.send_message(
+                    chat_id=update.message.chat_id,
+                    text="Currently you are watching " + str(user[0]['language']) + ".wikipedia.org. You can change the language according to xx.wikipedia.org: '/watch xx'. For example '/watch de' for German or 'watch fr' for French."
+                )
         else:
             if (self.check_input(context.args[0])):
                 context.bot.send_message(chat_id=update.message.chat_id, text="Allright. I will watch " + context.args[0] + ".wikipedia.org and notify you once per day about trending articles.")

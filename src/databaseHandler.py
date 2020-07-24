@@ -54,6 +54,15 @@ def getUsers(language):
     entries = db.fetchall()
     con.close()
     return entries
+    
+def getUserLang(chatid):
+    con = sqlite3.connect('registration.db')
+    con.row_factory = sqlite3.Row
+    db = con.cursor()
+    db.execute("SELECT * FROM registrations WHERE chatid=?",([str(chatid)]))
+    entries = db.fetchall()
+    con.close()
+    return entries
 
 def getLanguages():
     con = sqlite3.connect('registration.db')

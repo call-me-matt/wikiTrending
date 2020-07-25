@@ -82,7 +82,7 @@ def getTrends(language='en', limit=3, unpublishedOnly=False):
     con.row_factory = sqlite3.Row
     db = con.cursor()
     if (unpublishedOnly):
-        db.execute("SELECT * FROM trends WHERE language=? AND published=False ORDER BY created DESC LIMIT ?",([str(language), limit]))
+        db.execute("SELECT * FROM trends WHERE language=? AND published='False' ORDER BY created DESC LIMIT ?",([str(language), limit]))
     else:
         db.execute("SELECT * FROM trends WHERE language=? ORDER BY created DESC LIMIT ?",([str(language), limit]))
     entries = db.fetchall()

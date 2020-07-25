@@ -18,6 +18,7 @@ logging.basicConfig(format='[%(levelname)s] %(name)s: %(message)s',level=logging
 logger = logging.getLogger("wiki-scanner")
 
 WEBSITE_CHECK_INTERVAL_HOURS = 12
+EXCLUDED_TRENDS = ["Main_Page","Hauptseite","Pornhub"]
 
 class wikiScanner (threading.Thread):
 
@@ -27,6 +28,7 @@ class wikiScanner (threading.Thread):
         
       
     def run(self):
+        global WATCHDOG_INTERVAL_MIN
         while True:
             self.check()
             time.sleep(WEBSITE_CHECK_INTERVAL_HOURS*60*60)
@@ -60,6 +62,7 @@ class wikiScanner (threading.Thread):
                 databaseHandler.addTrend(str(language), str(trend), str(yesterday), str(summary), str(image))
 
     def crawl(self, language, queryDate):
+        global EXCLUDED_TRENDS
         try:
             logger.debug ("checking wikipedia-" + str(language))
 
@@ -68,7 +71,7 @@ class wikiScanner (threading.Thread):
             articles = json_normalize(data=wikiData['items'][0]['articles'])
             # filter out special pages
             articles = articles[~articles['article'].str.contains(":")]
-            articles = articles[~articles['article'].str.contains("Main_Page")]
+            articles = articles[~articles['article'].isin(EXCLUDED_TRENDS)]
             # take top 3
             articles = articles.sort_values(by=['rank'])[:3]
             return (articles['article'].values)

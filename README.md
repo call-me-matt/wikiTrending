@@ -1,7 +1,13 @@
 # wikiTrending
 Telegram-Bot that notifies about trending pages on Wikipedia.
 
+![Screenshot](./screenshot.png)
+
 Inspired by: https://www.youtube.com/watch?v=39nV7f3HZg0
+
+## Demo
+
+ - Try it out by connecting to my instance [@WikiTrendBot](https://t.me/WikiTrendBot)
 
 ## Installation
 

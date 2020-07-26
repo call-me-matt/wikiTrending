@@ -93,7 +93,10 @@ class telegramHandler (threading.Thread):
                         message = "New Trend: <a href='https://" + str(language) + ".wikipedia.org/wiki/" + str(trend) + "'>" + str(wikiData[0]['trend']) + "</a>! " + str(wikiData[0]['summary'])
                         image = str(wikiData[0]['image'])
                         if (image != ''):
-                            context.bot.send_photo(chat_id=str(user['chatid']), caption=str(message), photo=str(image), parse_mode='HTML')
+                            try:
+                                context.bot.send_photo(chat_id=str(user['chatid']), caption=str(message), photo=str(image), parse_mode='HTML')
+                            except:
+                                context.bot.send_message(chat_id=str(user['chatid']), text=str(message), parse_mode='HTML')
                         else:
                             context.bot.send_message(chat_id=str(user['chatid']), text=str(message), parse_mode='HTML')
         logger.debug("Setting everything to notified")

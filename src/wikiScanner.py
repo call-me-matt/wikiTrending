@@ -10,11 +10,10 @@ import wikipedia
 from datetime import date 
 from datetime import timedelta 
 import pandas as pd
-from pandas.io.json import json_normalize #package for flattening json in pandas df
 
 import databaseHandler
 
-logging.basicConfig(format='[%(levelname)s] %(name)s: %(message)s',level=logging.DEBUG)
+logging.basicConfig(format='[%(levelname)s] %(name)s: %(message)s',level=logging.INFO)
 logger = logging.getLogger("wiki-scanner")
 
 WEBSITE_CHECK_INTERVAL_HOURS = 12
@@ -58,8 +57,7 @@ class wikiScanner (threading.Thread):
             # save new trends in database
             for trend in newTrends:
                 summary = self.getSummary(str(trend), str(language))
-                image = self.getImage(str(trend), str(language))
-                databaseHandler.addTrend(str(language), str(trend), str(yesterday), str(summary), str(image))
+                databaseHandler.addTrend(str(language), str(trend), str(yesterday), str(summary))
 
     def crawl(self, language, queryDate):
         global EXCLUDED_TRENDS
@@ -68,7 +66,7 @@ class wikiScanner (threading.Thread):
 
             url = "https://wikimedia.org/api/rest_v1/metrics/pageviews/top/" + str(language) + ".wikipedia/all-access/" + str(queryDate)
             wikiData = pd.read_json(url)
-            articles = json_normalize(data=wikiData['items'][0]['articles'])
+            articles = pd.json_normalize(data=wikiData['items'][0]['articles'])
             # filter out special pages
             articles = articles[~articles['article'].str.contains(":")]
             articles = articles[~articles['article'].isin(EXCLUDED_TRENDS)]
@@ -83,13 +81,4 @@ class wikiScanner (threading.Thread):
     def getSummary(self, title, language):
         wikipedia.set_lang(str(language))
         return (wikipedia.WikipediaPage(str(title)).summary)
-    
-    def getImage(self, title, language):
-        wikipedia.set_lang(str(language))
-        images = wikipedia.WikipediaPage(str(title)).images
-        for image in images:
-            if image.endswith('.svg'):
-                continue
-            return (str(image))
-        return ''
 

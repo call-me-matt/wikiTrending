@@ -9,7 +9,7 @@ import threading
 import telegramHandler
 import wikiScanner
 
-logging.basicConfig(format='[%(levelname)s] %(name)s: %(message)s',level=logging.DEBUG)
+logging.basicConfig(format='[%(levelname)s] %(name)s: %(message)s',level=logging.INFO)
 logger = logging.getLogger("main")
 
 logger.info('starting wikiTrendsBot')

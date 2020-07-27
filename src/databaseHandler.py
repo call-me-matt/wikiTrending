@@ -5,7 +5,7 @@ import sqlite3
 import logging
 import datetime
 
-logging.basicConfig(format='[%(levelname)s] %(name)s: %(message)s',level=logging.DEBUG)
+logging.basicConfig(format='[%(levelname)s] %(name)s: %(message)s',level=logging.INFO)
 logger = logging.getLogger("database-handler")
 
 def init():
@@ -22,7 +22,6 @@ def init():
                 language TINYTEXT, \
                 trend TINYTEXT, \
                 summary TEXT, \
-                image TINYTEXT, \
                 created TINYTEXT, \
                 published TINYINT \
            )")
@@ -102,11 +101,11 @@ def getTrend(title, language='en'):
     con.close()
     return entries
 
-def addTrend(language, trend, queryDate, summary, image):
+def addTrend(language, trend, queryDate, summary):
     logger.debug("adding new trend for " + language + " in database")
     con = sqlite3.connect('registration.db')
     db = con.cursor()
-    db.execute("INSERT INTO trends (language,trend,summary,image,created,published) VALUES (?,?,?,?,?,'False')",([language,trend,summary,image,queryDate]))
+    db.execute("INSERT INTO trends (language,trend,summary,created,published) VALUES (?,?,?,?,'False')",([language,trend,summary,queryDate]))
     con.commit()
     con.close()
     

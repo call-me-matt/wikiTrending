@@ -19,7 +19,7 @@ from telegram.ext import JobQueue
 TOKEN = os.environ['TELEGRAM_BOT_TOKEN'] 
 WATCHDOG_INTERVAL_MIN = 60
 
-logging.basicConfig(format='[%(levelname)s] %(name)s: %(message)s',level=logging.DEBUG)
+logging.basicConfig(format='[%(levelname)s] %(name)s: %(message)s',level=logging.INFO)
 logger = logging.getLogger("telegram-handler")
 
 class telegramHandler (threading.Thread):
@@ -91,14 +91,7 @@ class telegramHandler (threading.Thread):
                     for user in usertable:
                         wikiData = databaseHandler.getTrend(str(trend), str(language))
                         message = "New Trend: <a href='https://" + str(language) + ".wikipedia.org/wiki/" + str(trend) + "'>" + str(wikiData[0]['trend']) + "</a>! " + str(wikiData[0]['summary'])
-                        image = str(wikiData[0]['image'])
-                        if (image != ''):
-                            try:
-                                context.bot.send_photo(chat_id=str(user['chatid']), caption=str(message), photo=str(image), parse_mode='HTML')
-                            except:
-                                context.bot.send_message(chat_id=str(user['chatid']), text=str(message), parse_mode='HTML')
-                        else:
-                            context.bot.send_message(chat_id=str(user['chatid']), text=str(message), parse_mode='HTML')
+                        context.bot.send_message(chat_id=str(user['chatid']), text=str(message), parse_mode='HTML')
         logger.debug("Setting everything to notified")
         databaseHandler.setNotified()
         

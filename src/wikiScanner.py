@@ -43,7 +43,7 @@ class wikiScanner (threading.Thread):
             
             logger.debug('checking language ' + str(language))
             
-            previouslyTrending = databaseHandler.getTrends(language)
+            previouslyTrending = databaseHandler.getTrends(language, 10)
             logger.debug('Previously trending (' + str(language) + "): " + str(previouslyTrending))
             nowTrending = self.crawl(language, yesterday)
             if (len(nowTrending) == 0):

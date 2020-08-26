@@ -7,8 +7,8 @@ import logging
 import subprocess
 import string
 import wikipedia
-from datetime import date 
-from datetime import timedelta 
+from datetime import date
+from datetime import timedelta
 import pandas as pd
 
 import databaseHandler
@@ -16,7 +16,7 @@ import databaseHandler
 logging.basicConfig(format='[%(levelname)s] %(name)s: %(message)s',level=logging.INFO)
 logger = logging.getLogger("wiki-scanner")
 
-WEBSITE_CHECK_INTERVAL_HOURS = 12
+WEBSITE_CHECK_INTERVAL_HOURS = 8
 EXCLUDED_TRENDS = ["Main_Page","Hauptseite","Pornhub"]
 
 class wikiScanner (threading.Thread):
@@ -24,14 +24,13 @@ class wikiScanner (threading.Thread):
     def __init__(self):
         logger.info('starting wiki scanner')
         threading.Thread.__init__(self)
-        
-      
+
     def run(self):
         global WATCHDOG_INTERVAL_MIN
         while True:
             self.check()
             time.sleep(WEBSITE_CHECK_INTERVAL_HOURS*60*60)
-                
+
         # never reached
         logger.info("exiting wiki scanner")
 
@@ -40,9 +39,9 @@ class wikiScanner (threading.Thread):
         languages = databaseHandler.getLanguages()
 
         for language in languages:
-            
+
             logger.debug('checking language ' + str(language))
-            
+
             previouslyTrending = databaseHandler.getTrends(language, 10)
             logger.debug('Previously trending (' + str(language) + "): " + str(previouslyTrending))
             nowTrending = self.crawl(language, yesterday)
@@ -53,11 +52,12 @@ class wikiScanner (threading.Thread):
             if (len(newTrends) == 0):
                 continue
             logger.info('New trends for ' + str(language) + ": " + str(newTrends))
-            
+
             # save new trends in database
             for trend in newTrends:
                 summary = self.getSummary(str(trend), str(language))
-                databaseHandler.addTrend(str(language), str(trend), str(yesterday), str(summary))
+                if (summary != None):
+                    databaseHandler.addTrend(str(language), str(trend), str(yesterday), str(summary))
 
     def crawl(self, language, queryDate):
         global EXCLUDED_TRENDS
@@ -73,12 +73,16 @@ class wikiScanner (threading.Thread):
             # take top 3
             articles = articles.sort_values(by=['rank'])[:3]
             return (articles['article'].values)
-            
+
         except:
             logger.warning ("could not get trends for " + str(language) + " (" + str(queryDate) + ")")
             return []
 
     def getSummary(self, title, language):
         wikipedia.set_lang(str(language))
-        return (wikipedia.WikipediaPage(str(title)).summary)
+        try:
+            return (wikipedia.WikipediaPage(str(title)).summary)
+        except:
+            logger.warning("could not retrieve summary for " + str(title))
+            return None
 

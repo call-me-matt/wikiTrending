@@ -17,7 +17,7 @@ logging.basicConfig(format='[%(levelname)s] %(name)s: %(message)s',level=logging
 logger = logging.getLogger("wiki-scanner")
 
 WEBSITE_CHECK_INTERVAL_HOURS = 8
-EXCLUDED_TRENDS = ["Main_Page","Hauptseite","Pornhub"]
+EXCLUDED_TRENDS = ["Main_Page","Hauptseite"]
 
 class wikiScanner (threading.Thread):
 
@@ -42,8 +42,7 @@ class wikiScanner (threading.Thread):
 
             logger.debug('checking language ' + str(language))
 
-            previouslyTrending = databaseHandler.getTrends(language, 10)
-            logger.debug('Previously trending (' + str(language) + "): " + str(previouslyTrending))
+            previouslyTrending = databaseHandler.getTrends(language, 1000)
             nowTrending = self.crawl(language, yesterday)
             if (len(nowTrending) == 0):
                 continue

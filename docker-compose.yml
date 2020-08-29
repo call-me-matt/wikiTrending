@@ -6,6 +6,4 @@ services:
     env_file:
     - secrets.env
     volumes:
-    - appdir:/usr/src/app
-volumes:
-  appdir:
+    - ./src:/usr/src/app

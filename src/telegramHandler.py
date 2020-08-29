@@ -35,7 +35,7 @@ class telegramHandler (threading.Thread):
 
     def check_input(self, userInput):
         # check there are no special chars
-        not_letters_or_digits = '!"\\%\'()*,;<>[]^ `{|}'
+        not_letters_or_digits = '!"\\%\'()*,.;<>[]^ `{|}'
         filteredInput = str(userInput).translate(not_letters_or_digits)
         if (str(userInput) != filteredInput):
             return False
@@ -65,12 +65,13 @@ class telegramHandler (threading.Thread):
                 context.bot.send_message(chat_id=update.message.chat_id, text="Sorry, I have problems understanding your inputs. Make sure it's a valid language code of wikipedia: en.wikipedia.org --> '/watch en'")
 
     def jobs(self, update, context):
-        entries = databaseHandler.getEntries()
+        entries = databaseHandler.getUsers()
         if (not entries):
-            context.bot.send_message(chat_id=update.message.chat_id, text="There are currently no active jobs.")
+            message = "There are currently no active jobs."
         else:
             for entry in entries:
-                context.bot.send_message(chat_id=update.message.chat_id, text="User: " + str(entry['user']) + " (language: " + str(entry['language']) + ")")
+                message += str(entry['user']) + " (" + str(entry['language']) + ") "
+        context.bot.send_message(chat_id=update.message.chat_id, text=message)
 
     def echo(self, update, context):
         context.bot.send_message(chat_id=update.message.chat_id, text="🤓🙄 Please don't disturb me. I am observing.")
@@ -112,7 +113,7 @@ class telegramHandler (threading.Thread):
         databaseHandler.init()
         
         logger.debug('creating telegram-watchdog')
-        watchdog = self.updater.job_queue.run_repeating(self.sendNewTrends, interval=WATCHDOG_INTERVAL_MIN*60, first=5)
+        watchdog = self.updater.job_queue.run_repeating(self.sendNewTrends, interval=WATCHDOG_INTERVAL_MIN*60, first=60)
       
     def run(self):
         start_handler = CommandHandler('start', self.register)

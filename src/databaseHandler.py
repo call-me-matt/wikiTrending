@@ -45,11 +45,14 @@ def removeUser(username):
     con.commit()
     con.close()
 
-def getUsers(language):
+def getUsers(language=False):
     con = sqlite3.connect('registration.db')
     con.row_factory = sqlite3.Row
     db = con.cursor()
-    db.execute("SELECT * FROM registrations WHERE language=?",([language]))
+    if language == False:
+        db.execute("SELECT * FROM registrations")
+    else:
+        db.execute("SELECT * FROM registrations WHERE language=?",([language]))
     entries = db.fetchall()
     con.close()
     return entries

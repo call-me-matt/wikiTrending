@@ -7,8 +7,7 @@ import logging
 import subprocess
 import string
 import wikipedia
-from datetime import date
-from datetime import timedelta
+from datetime import date,timedelta
 import pandas as pd
 
 import databaseHandler

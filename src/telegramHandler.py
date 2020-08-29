@@ -16,10 +16,10 @@ from telegram.ext import CommandHandler
 from telegram.ext import MessageHandler, Filters
 from telegram.ext import JobQueue
 
-TOKEN = os.environ['TELEGRAM_BOT_TOKEN'] 
+TOKEN = os.environ['TELEGRAM_BOT_TOKEN']
 WATCHDOG_INTERVAL_MIN = 60
 
-logging.basicConfig(format='[%(levelname)s] %(name)s: %(message)s',level=logging.INFO)
+logging.basicConfig(format='[%(levelname)s] %(name)s: %(message)s',level=logging.DEBUG)
 logger = logging.getLogger("telegram-handler")
 
 class telegramHandler (threading.Thread):
@@ -64,21 +64,12 @@ class telegramHandler (threading.Thread):
             else:
                 context.bot.send_message(chat_id=update.message.chat_id, text="Sorry, I have problems understanding your inputs. Make sure it's a valid language code of wikipedia: en.wikipedia.org --> '/watch en'")
 
-    def jobs(self, update, context):
-        entries = databaseHandler.getUsers()
-        if (not entries):
-            message = "There are currently no active jobs."
-        else:
-            for entry in entries:
-                message += str(entry['user']) + " (" + str(entry['language']) + ") "
-        context.bot.send_message(chat_id=update.message.chat_id, text=message)
-
     def echo(self, update, context):
         context.bot.send_message(chat_id=update.message.chat_id, text="🤓🙄 Please don't disturb me. I am observing.")
-   
+
     def feedback(self, update, context):
         context.bot.send_message(chat_id=update.message.chat_id, text="For questions or feedback you can contact @KeinplanMAJORAN .")
-   
+
     def sendNewTrends(self, context: CallbackContext):
         languages = databaseHandler.getLanguages()
         for language in languages:
@@ -95,42 +86,39 @@ class telegramHandler (threading.Thread):
                         context.bot.send_message(chat_id=str(user['chatid']), text=str(message), parse_mode='HTML')
         logger.debug("Setting everything to notified")
         databaseHandler.setNotified()
-        
+
     def __init__(self, scannerThread):
         global TOKEN
         global WATCHDOG_INTERVAL_MIN
-        
+
         logger.info('starting telegram-handler')
         threading.Thread.__init__(self)
-        
+
         self.scannerThread = scannerThread
-        
+
         logger.debug("initializing telegram bot")
         self.updater = Updater(token=TOKEN, use_context=True)
         self.dispatcher = self.updater.dispatcher
 
         logger.debug("initializing registration database")
         databaseHandler.init()
-        
+
         logger.debug('creating telegram-watchdog')
         watchdog = self.updater.job_queue.run_repeating(self.sendNewTrends, interval=WATCHDOG_INTERVAL_MIN*60, first=60)
-      
+
     def run(self):
         start_handler = CommandHandler('start', self.register)
         self.dispatcher.add_handler(start_handler)
 
         stop_handler = CommandHandler('stop', self.stop)
         self.dispatcher.add_handler(stop_handler)
-        
+
         watch_handler = CommandHandler('watch', self.watch, pass_args=True)
         self.dispatcher.add_handler(watch_handler)
 
-        jobs_handler = CommandHandler('jobs', self.jobs)
-        self.dispatcher.add_handler(jobs_handler)
-        
         echo_handler = MessageHandler(Filters.text, self.echo)
         self.dispatcher.add_handler(echo_handler)
-        
+
         unknown_handler = MessageHandler(Filters.command, self.feedback)
         self.dispatcher.add_handler(unknown_handler)
 

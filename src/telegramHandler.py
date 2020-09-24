@@ -83,7 +83,7 @@ class telegramHandler (threading.Thread):
                     for user in usertable:
                         wikiData = databaseHandler.getTrend(str(trend), str(language))
                         message = "New Trend: <a href='https://" + str(language) + ".wikipedia.org/wiki/" + str(trend) + "'>" + str(wikiData[0]['trend']) + "</a>! " + str(wikiData[0]['summary'])
-                        context.bot.send_message(chat_id=str(user['chatid']), text=str(message), parse_mode='HTML')
+                        context.bot.send_message(chat_id=str(user['chatid']), text=str(message)[:1000], parse_mode='HTML')
         logger.debug("Setting everything to notified")
         databaseHandler.setNotified()
 

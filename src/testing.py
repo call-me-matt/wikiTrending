@@ -19,4 +19,5 @@ articles = articles[~articles['article'].str.contains(":")]
 articles = articles[~articles['article'].isin(EXCLUDED_TRENDS)]
 # take top 3
 articles = articles.sort_values(by=['rank'])[:amount]
-print (articles['article'].values)
+#print (articles['article'].values)
+print (articles)
